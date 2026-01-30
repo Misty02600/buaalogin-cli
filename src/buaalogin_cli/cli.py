@@ -170,7 +170,7 @@ def config_cmd(
 
 @app.command("status")
 def status_cmd():
-    """检查当前网络连接状态。退出码：已登录=0，未登录=1。"""
+    """检查当前网络连接状态。"""
     if service.get_status() == service.NetworkStatus.LOGGED_IN:
         typer.secho("✅ 网络正常", fg=typer.colors.GREEN)
         raise typer.Exit(0)
