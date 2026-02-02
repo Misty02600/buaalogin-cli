@@ -99,6 +99,43 @@ buaalogin run --headless               # 无头模式（默认）
 | `buaalogin config -s` | 查看当前已保存的配置信息                   |
 | `buaalogin --help`    | 查看所有可用命令和参数帮助                 |
 
+### 开机自启（仅 Windows）
+
+设置开机时自动运行保活服务：
+
+```bash
+buaalogin startup enable   # 启用开机自启
+buaalogin startup disable  # 禁用开机自启
+buaalogin startup status   # 查看当前状态
+```
+
+> **注意**：启用开机自启需要管理员权限。以管理员身份运行终端，然后执行上述命令。
+
+<details>
+<summary>📋 手动设置任务计划程序</summary>
+
+如果命令行方式不工作，可以手动通过 Windows 任务计划程序设置：
+
+1. **打开任务计划程序**：按 `Win+R`，输入 `taskschd.msc`，回车
+
+2. **创建基本任务**：右键"任务计划程序库" → "创建任务"
+
+3. **常规设置**：
+   - 名称：`buaalogin-cli`
+   - 勾选"不管用户是否登录都要运行"
+   - 勾选"使用最高权限运行"
+
+4. **触发器**：
+   - 新建 → 选择"启动时"
+
+5. **操作**：
+   - 新建 → 启动程序
+   - 程序：`buaalogin`（或完整路径，可通过 `where buaalogin` 查看）
+   - 参数：`run`
+
+6. **保存**：点击确定，输入 Windows 密码
+
+</details>
 
 ## 配置管理
 
@@ -119,10 +156,4 @@ buaalogin run --headless               # 无头模式（默认）
 - `BUAA_USERNAME`: 学号
 - `BUAA_PASSWORD`: 密码
 - `BUAA_CHECK_INTERVAL`: 检查间隔（分钟）
-
-## 命名说明
-
-| 项目 | 值              | 说明                        |
-| ---- | --------------- | --------------------------- |
-| 包名 | `buaalogin-cli` | `pip install buaalogin-cli` |
-| 命令 | `buaalogin`     | 终端执行命令                |
+-

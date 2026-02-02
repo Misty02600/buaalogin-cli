@@ -5,6 +5,7 @@ from pathlib import Path
 from platformdirs import user_config_dir, user_log_dir
 
 APP_NAME = "buaalogin-cli"
+CLI_CMD = "buaalogin"
 
 # 文件路径
 CONFIG_FILE = Path(user_config_dir(APP_NAME, ensure_exists=True)) / "config.json"
