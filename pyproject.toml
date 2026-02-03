@@ -1,6 +1,10 @@
 [project]
 name = "buaalogin-cli"
 version = "0.1.0"
+description = "一个简易的校园网自动登录与保活工具，基于 Playwright 模拟登录。"
+readme = "README.md"
+authors = [{ name = "Misty02600", email = "xiao02600@gmail.com" }]
+urls = { Repository = "https://github.com/Misty02600/buaalogin-cli" }
 requires-python = ">=3.11"
 dependencies = [
   "playwright>=1.40.0",
@@ -26,9 +30,6 @@ test = [
   "pytest-cov>=7.0.0",
   "pytest-xdist>=3.8.0,<4.0.0",
 ]
-
-[project.urls]
-Homepage = "https://github.com/Misty02600/buaalogin-cli"
 
 [project.scripts]
 buaalogin = "buaalogin_cli.__main__:main"

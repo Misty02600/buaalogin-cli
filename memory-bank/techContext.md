@@ -66,10 +66,11 @@ buaalogin-cli/
 │       ├── __init__.py      # 包初始化
 │       ├── __main__.py      # 程序入口（python -m buaalogin_cli）
 │       ├── cli.py           # CLI 命令定义
-│       ├── service.py       # 核心服务
+│       ├── service.py       # 核心服务（登录、保活、状态检测）
+│       ├── startup.py       # 开机自启管理（Windows Task Scheduler）
 │       ├── config.py        # 配置管理
 │       ├── log.py           # 日志配置
-│       └── constants.py     # 常量定义
+│       └── constants.py     # 常量和 URL 定义
 ├── tests/                   # 测试文件
 │   ├── unit/                # 单元测试
 │   └── integration/         # 集成测试

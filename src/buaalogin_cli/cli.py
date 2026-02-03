@@ -2,7 +2,7 @@
 
 import typer
 
-from . import service
+from . import service, startup
 from .config import config
 from .constants import CONFIG_FILE, LOG_FILE
 from .log import setup_console
@@ -170,7 +170,7 @@ def config_cmd(
 
 @app.command("status")
 def status_cmd():
-    """检查当前网络连接状态。退出码：已登录=0，未登录=1。"""
+    """检查当前网络连接状态。"""
     if service.get_status() == service.NetworkStatus.LOGGED_IN:
         typer.secho("✅ 网络正常", fg=typer.colors.GREEN)
         raise typer.Exit(0)
@@ -199,6 +199,51 @@ def info_cmd():
         typer.secho(f"  ✅ 文件大小: {size / 1024:.1f} KB", fg=typer.colors.GREEN)
     else:
         typer.secho("  📝 尚未生成", fg=typer.colors.BLUE)
+
+
+# region 开机自启子命令组
+
+startup_app = typer.Typer(help="管理开机自启（仅 Windows）")
+app.add_typer(startup_app, name="startup")
+
+
+@startup_app.command("enable")
+def startup_enable():
+    """启用开机自启。"""
+
+    if not startup.is_admin():
+        typer.secho(
+            "❌ 需要管理员权限，请以管理员身份运行终端后重试",
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(1)
+    try:
+        startup.enable_startup()
+        typer.secho("✅ 开机自启已启用", fg=typer.colors.GREEN)
+    except RuntimeError as e:
+        typer.secho(f"❌ {e}", fg=typer.colors.RED)
+        raise typer.Exit(1) from None
+
+
+@startup_app.command("disable")
+def startup_disable():
+    """禁用开机自启。"""
+
+    startup.disable_startup()
+    typer.secho("✅ 开机自启已禁用", fg=typer.colors.GREEN)
+
+
+@startup_app.command("status")
+def startup_status():
+    """查看开机自启状态。"""
+
+    if startup.is_startup_enabled():
+        typer.secho("✅ 开机自启: 已启用", fg=typer.colors.GREEN)
+    else:
+        typer.secho("⚪ 开机自启: 未启用", fg=typer.colors.YELLOW)
+
+
+# endregion
 
 
 def _do_login_cmd(

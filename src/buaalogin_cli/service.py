@@ -8,7 +8,7 @@ import requests
 from playwright.sync_api import TimeoutError as PlaywrightTimeout
 from playwright.sync_api import sync_playwright
 
-from .constants import GATEWAY_URL, LOG_FILE, LOGIN_URL
+from .constants import LOG_FILE, LOGIN_URL, RAD_USER_INFO_URL
 from .log import logger
 
 
@@ -32,10 +32,10 @@ class NetworkStatus(Enum):
 def get_status() -> NetworkStatus:
     """获取当前网络状态。
 
-    通过访问校园网网关 (https://gw.buaa.edu.cn/) 检测：
-    - 请求失败（DNS/超时）→ UNKNOWN_NETWORK
-    - URL 包含 "success" → LOGGED_IN
-    - 其他情况 → LOGGED_OUT
+    通过访问深澜 rad_user_info API 检测：
+    - 请求失败（DNS/超时）→ UNKNOWN_NETWORK（非校园网环境）
+    - API 返回用户信息 → LOGGED_IN
+    - API 返回空或错误 → LOGGED_OUT
 
     Returns:
         NetworkStatus 枚举值。
@@ -45,19 +45,20 @@ def get_status() -> NetworkStatus:
 
     try:
         response = requests.get(
-            GATEWAY_URL,
+            RAD_USER_INFO_URL,
             headers={"User-Agent": "Mozilla/5.0"},
             timeout=5,
-            allow_redirects=True,
         )
-        final_url = response.url
+        text = response.text.strip()
 
-        if "success" in final_url.lower():
-            log.debug(f"网络状态: 已登录 (URL: {final_url})")
-            return NetworkStatus.LOGGED_IN
-        else:
-            log.debug(f"网络状态: 未登录 (URL: {final_url})")
+        # API 响应格式：
+        # - 已登录: 逗号分隔的用户信息，如 "93830,1770015058,..."
+        # - 未登录: "not_online_error"
+        if text == "not_online_error":
+            log.debug("网络状态: 未登录 (API 响应: not_online_error)")
             return NetworkStatus.LOGGED_OUT
+        log.debug(f"网络状态: 已登录 (API 响应: {text[:50]}...)")
+        return NetworkStatus.LOGGED_IN
 
     except requests.RequestException as e:
         log.debug(f"网络状态: 非校园网环境 ({e})")

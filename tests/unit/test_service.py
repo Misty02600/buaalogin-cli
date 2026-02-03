@@ -17,20 +17,21 @@ class TestGetStatus:
     """测试 get_status 函数"""
 
     def test_logged_in_returns_logged_in(self):
-        """测试已登录状态返回 LOGGED_IN"""
+        """测试已登录状态返回 LOGGED_IN（API 返回用户信息）"""
         with patch("buaalogin_cli.service.requests.get") as mock_get:
             mock_response = MagicMock()
-            mock_response.url = "https://gw.buaa.edu.cn/srun_portal_success"
+            # API 返回逗号分隔的用户信息表示已登录
+            mock_response.text = "93830,1770015058,1770020128,59831052"
             mock_get.return_value = mock_response
 
             result = get_status()
             assert result == NetworkStatus.LOGGED_IN
 
-    def test_logged_out_returns_logged_out(self):
-        """测试未登录状态返回 LOGGED_OUT"""
+    def test_logged_out_with_not_online_error(self):
+        """测试 API 返回 not_online_error 时返回 LOGGED_OUT"""
         with patch("buaalogin_cli.service.requests.get") as mock_get:
             mock_response = MagicMock()
-            mock_response.url = "https://gw.buaa.edu.cn/srun_portal_pc"
+            mock_response.text = "not_online_error"
             mock_get.return_value = mock_response
 
             result = get_status()
@@ -51,16 +52,6 @@ class TestGetStatus:
 
             result = get_status()
             assert result == NetworkStatus.UNKNOWN_NETWORK
-
-    def test_success_case_insensitive(self):
-        """测试 URL 大小写不敏感"""
-        with patch("buaalogin_cli.service.requests.get") as mock_get:
-            mock_response = MagicMock()
-            mock_response.url = "https://gw.buaa.edu.cn/SUCCESS"
-            mock_get.return_value = mock_response
-
-            result = get_status()
-            assert result == NetworkStatus.LOGGED_IN
 
 
 class TestLogin:

@@ -14,6 +14,14 @@
 
 ## Completed
 
+- [TASK008] 修复网络状态检测逻辑
+  - 完成时间：2026-02-02
+  - 成果：使用深澜 rad_user_info API 替代 URL 检测，精确匹配 `not_online_error`
+
+- [TASK007] 开机自启功能
+  - 完成时间：2026-02-02
+  - 成果：Task Scheduler + onstart 触发器，当前用户运行，Typer 子命令组
+
 - [TASK006] 模块命名规范化
   - 完成时间：2026-01-29
   - 成果：模块名改为 `buaalogin_cli`，APP_NAME 改为 `buaalogin-cli`

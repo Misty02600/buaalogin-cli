@@ -5,6 +5,7 @@ from pathlib import Path
 from platformdirs import user_config_dir, user_log_dir
 
 APP_NAME = "buaalogin-cli"
+CLI_CMD = "buaalogin"
 
 # 文件路径
 CONFIG_FILE = Path(user_config_dir(APP_NAME, ensure_exists=True)) / "config.json"
@@ -13,3 +14,4 @@ LOG_FILE = Path(user_log_dir(APP_NAME, ensure_exists=True)) / f"{APP_NAME}.log"
 # URL
 GATEWAY_URL = "https://gw.buaa.edu.cn"
 LOGIN_URL = GATEWAY_URL
+RAD_USER_INFO_URL = f"{GATEWAY_URL}/cgi-bin/rad_user_info"
