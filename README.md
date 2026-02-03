@@ -1,4 +1,3 @@
-<div align="center">
 
 # BUAALogin CLI
 
@@ -6,12 +5,11 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 
-</div>
 
 一个简易的校园网自动登录与保活工具，基于 Playwright 模拟登录。
 - 开箱即用
 - 省去了复杂的加密逻辑，仅依赖于登录页前端元素
-- 需要安装较大的浏览器内核
+- 并不轻量，需要安装较大的浏览器内核
 
 ## 安装
 
@@ -112,9 +110,7 @@ buaalogin startup status   # 查看当前状态
 > **注意**：启用开机自启需要管理员权限。以管理员身份运行终端，然后执行上述命令。
 
 <details>
-<summary>📋 手动设置任务计划程序</summary>
-
-如果命令行方式不工作，可以手动通过 Windows 任务计划程序设置：
+<summary>📋 Windows 手动设置任务计划程序</summary>
 
 1. **打开任务计划程序**：按 `Win+R`，输入 `taskschd.msc`，回车
 
@@ -130,7 +126,7 @@ buaalogin startup status   # 查看当前状态
 
 5. **操作**：
    - 新建 → 启动程序
-   - 程序：`buaalogin`（或完整路径，可通过 `where buaalogin` 查看）
+   - 程序：完整路径（cmd 里通过 `where buaalogin` 查看，如 uv 安装路径一般在 `C:\Users\xxx\.local\bin\buaalogin.exe`）
    - 参数：`run`
 
 6. **保存**：点击确定，输入 Windows 密码
@@ -156,4 +152,3 @@ buaalogin startup status   # 查看当前状态
 - `BUAA_USERNAME`: 学号
 - `BUAA_PASSWORD`: 密码
 - `BUAA_CHECK_INTERVAL`: 检查间隔（分钟）
--

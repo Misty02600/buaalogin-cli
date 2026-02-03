@@ -8,20 +8,19 @@
 
 ## Pending
 
-- [TASK008] 修复网络状态检测逻辑
-  - 添加时间：2026-02-02
-  - 目标：修复 `get_status()` 函数的登录状态判断逻辑
-  - 问题：URL 不包含 "success" 导致误判为未登录
-
 - [TASK005] 验证登录页面选择器
   - 添加时间：2026-01-29
   - 目标：验证登录按钮和错误信息的真实 DOM 选择器
 
 ## Completed
 
+- [TASK008] 修复网络状态检测逻辑
+  - 完成时间：2026-02-02
+  - 成果：使用深澜 rad_user_info API 替代 URL 检测，精确匹配 `not_online_error`
+
 - [TASK007] 开机自启功能
   - 完成时间：2026-02-02
-  - 成果：Task Scheduler + onstart 触发器，当前用户运行
+  - 成果：Task Scheduler + onstart 触发器，当前用户运行，Typer 子命令组
 
 - [TASK006] 模块命名规范化
   - 完成时间：2026-01-29
