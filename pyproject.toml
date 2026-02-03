@@ -1,6 +1,6 @@
 [project]
 name = "buaalogin-cli"
-version = "0.1.0"
+version = "0.2.0"
 description = "一个简易的校园网自动登录与保活工具，基于 Playwright 模拟登录。"
 readme = "README.md"
 authors = [{ name = "Misty02600", email = "xiao02600@gmail.com" }]
@@ -40,7 +40,7 @@ build-backend = "uv_build"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.1.0"                           # 当前版本
+version = "0.2.0"                           # 当前版本
 tag_format = "v$version"
 version_files = ["pyproject.toml:^version"]
 major_version_zero = true                   # 允许 0.x.x 版本号
