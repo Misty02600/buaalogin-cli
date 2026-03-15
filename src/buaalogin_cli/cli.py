@@ -146,21 +146,22 @@ def config_cmd(
             typer.echo("  （尚未配置）")
         return
 
-    # 交互式输入
-    if not username:
+    # 若未指定任何参数，进入交互式输入模式
+    if username is None and password is None and interval is None:
         username = typer.prompt("请输入 BUAA 学号")
         while not username:
             typer.secho("学号不能为空", fg=typer.colors.RED)
             username = typer.prompt("请输入 BUAA 学号")
-    if not password:
         password = typer.prompt("请输入密码")
         while not password:
             typer.secho("密码不能为空", fg=typer.colors.RED)
             password = typer.prompt("请输入密码")
 
-    # 更新配置并保存
-    config.username = username
-    config.password = password
+    # 仅更新用户显式指定的配置项
+    if username is not None:
+        config.username = username
+    if password is not None:
+        config.password = password
     if interval is not None:
         config.interval = interval
     config.save_to_json(CONFIG_FILE)
