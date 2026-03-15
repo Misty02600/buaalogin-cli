@@ -83,7 +83,7 @@ def _install_browser() -> None:
     )
     if result.returncode != 0:
         log.error("Chromium 浏览器安装失败")
-        msg = "Chromium 浏览器安装失败，请检查网络连接或手动运行: playwright install chromium"
+        msg = "Chromium 浏览器安装失败，请检查网络连接或手动运行: python -m playwright install chromium"
         raise RuntimeError(msg)
     log.info("Chromium 浏览器安装完成")
 
