@@ -52,7 +52,10 @@ def mock_response_logged_out(mock_urlopen):
 @pytest.fixture
 def mock_playwright():
     """Mock Playwright 浏览器。"""
-    with patch("buaalogin_cli.service.sync_playwright") as mock_pw:
+    with (
+        patch("buaalogin_cli.service.sync_playwright") as mock_pw,
+        patch("buaalogin_cli.service._install_browser"),
+    ):
         # 设置 mock 链
         mock_browser = MagicMock()
         mock_context = MagicMock()
