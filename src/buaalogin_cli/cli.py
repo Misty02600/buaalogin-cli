@@ -15,12 +15,18 @@ app = typer.Typer(
 
 
 @app.callback(invoke_without_command=True)
-def callback(ctx: typer.Context):
+def callback(
+    ctx: typer.Context,
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="显示详细调试信息"),
+):
     """BUAA 校园网登录工具。
 
     在任何子命令执行前调用，加载配置文件并设置默认参数值。
     如果未指定子命令则显示帮助信息。
     """
+    # 设置日志级别
+    setup_console(verbose=verbose)
+
     # 这些值会覆盖子命令中的参数默认值
     file_config = config.to_dict()
 
@@ -61,10 +67,8 @@ def login_cmd(
         "--headless/--headed",
         help="是否使用无头模式运行浏览器",
     ),
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="显示详细调试信息"),
 ):
     """执行单次登录。"""
-    setup_console(verbose=verbose)
     _do_login_cmd(username, password, headless)
 
 
@@ -102,10 +106,8 @@ def run_cmd(
         "--headless/--headed",
         help="是否使用无头模式运行浏览器",
     ),
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="显示详细调试信息"),
 ):
     """持续保持在线，定期检测并自动重连。"""
-    setup_console(verbose=verbose)
 
     passwd = password
 
@@ -120,8 +122,26 @@ def run_cmd(
     service.keep_alive(username, passwd, interval, headless=headless)
 
 
-@app.command("config")
-def config_cmd(
+# region config
+
+config_app = typer.Typer(help="管理配置", no_args_is_help=True)
+app.add_typer(config_app, name="config")
+
+
+@config_app.command("show")
+def config_show():
+    """显示当前配置。"""
+    typer.secho(f"配置文件: {CONFIG_FILE}", fg=typer.colors.CYAN)
+    saved = config.to_dict()
+    if saved:
+        for key, value in saved.items():
+            typer.echo(f"  {key} = {value}")
+    else:
+        typer.echo("  （尚未配置）")
+
+
+@config_app.command("set")
+def config_set(
     username: str | None = typer.Option(
         None, "--user", "-u", metavar="学号", help="校园网账号"
     ),
@@ -131,41 +151,36 @@ def config_cmd(
     interval: int | None = typer.Option(
         None, "--interval", "-i", metavar="分钟", min=1, help="保活检测间隔"
     ),
-    show: bool = typer.Option(
-        False, "--show", "-s", is_flag=True, help="仅显示当前配置", show_default=True
-    ),
 ):
-    """配置账户信息。"""
-    if show:
-        typer.secho(f"配置文件: {CONFIG_FILE}", fg=typer.colors.CYAN)
-        saved = config.to_dict()
-        if saved:
-            for key, value in saved.items():
-                typer.echo(f"  {key} = {value}")
-        else:
-            typer.echo("  （尚未配置）")
-        return
+    """设置配置项。不带参数时交互式输入。"""
+    # 判断是否提供了任何参数
+    no_args_provided = username is None and password is None and interval is None
 
-    # 交互式输入
-    if not username:
+    # 只有当没有提供任何参数时，才进入交互式输入模式
+    if no_args_provided:
         username = typer.prompt("请输入 BUAA 学号")
         while not username:
             typer.secho("学号不能为空", fg=typer.colors.RED)
             username = typer.prompt("请输入 BUAA 学号")
-    if not password:
         password = typer.prompt("请输入密码")
         while not password:
             typer.secho("密码不能为空", fg=typer.colors.RED)
             password = typer.prompt("请输入密码")
 
-    # 更新配置并保存
-    config.username = username
-    config.password = password
+    # 更新配置并保存（只更新提供的配置项）
+    if username is not None:
+        config.username = username
+    if password is not None:
+        config.password = password
     if interval is not None:
         config.interval = interval
+
     config.save_to_json(CONFIG_FILE)
     typer.secho("✅ 配置已保存!", fg=typer.colors.GREEN)
     typer.echo(f"   位置: {CONFIG_FILE}")
+
+
+# endregion
 
 
 @app.command("status")
@@ -201,9 +216,9 @@ def info_cmd():
         typer.secho("  📝 尚未生成", fg=typer.colors.BLUE)
 
 
-# region 开机自启子命令组
+# region startup
 
-startup_app = typer.Typer(help="管理开机自启（仅 Windows）")
+startup_app = typer.Typer(help="管理开机自启（仅 Windows）", no_args_is_help=True)
 app.add_typer(startup_app, name="startup")
 
 

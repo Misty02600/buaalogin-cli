@@ -41,7 +41,7 @@ def get_status() -> NetworkStatus:
         NetworkStatus 枚举值。
     """
     log = logger.bind(trigger="status")
-    log.debug("正在检测网络状态...")
+    log.debug(f"正在检测网络状态：{RAD_USER_INFO_URL}")
 
     try:
         response = requests.get(
@@ -61,7 +61,7 @@ def get_status() -> NetworkStatus:
         return NetworkStatus.LOGGED_IN
 
     except requests.RequestException as e:
-        log.debug(f"网络状态: 非校园网环境 ({e})")
+        log.debug(f"网络状态: 非校园网环境，请检查网络连接或代理设置 ({e})")
         return NetworkStatus.UNKNOWN_NETWORK
 
 
