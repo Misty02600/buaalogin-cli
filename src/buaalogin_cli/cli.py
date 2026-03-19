@@ -93,13 +93,13 @@ def run_cmd(
         show_default=False,
     ),
     interval: int = typer.Option(
-        5,
+        60,
         "--interval",
         "-i",
         envvar="BUAA_CHECK_INTERVAL",
-        metavar="分钟",
+        metavar="秒",
         min=1,
-        help="检测间隔",
+        help="检测间隔（秒）",
     ),
     headless: bool = typer.Option(
         True,
@@ -149,7 +149,7 @@ def config_set(
         None, "--pass", "-p", metavar="密码", help="校园网密码"
     ),
     interval: int | None = typer.Option(
-        None, "--interval", "-i", metavar="分钟", min=1, help="保活检测间隔"
+        None, "--interval", "-i", metavar="秒", min=1, help="保活检测间隔（秒）"
     ),
 ):
     """设置配置项。不带参数时交互式输入。"""

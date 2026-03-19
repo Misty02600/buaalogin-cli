@@ -17,7 +17,7 @@ class Config(Struct, omit_defaults=True):
     Attributes:
         username: 校园网账号。
         password: 校园网密码。
-        interval: 检测间隔（分钟）。
+        interval: 检测间隔（秒）。
     """
 
     username: str | UnsetType = UNSET

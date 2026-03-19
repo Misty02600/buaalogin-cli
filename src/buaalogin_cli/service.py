@@ -159,20 +159,19 @@ def _get_error_message(page) -> str:
 
 
 def keep_alive(
-    username: str, password: str, check_interval_min: int, *, headless: bool = True
+    username: str, password: str, check_interval_sec: int, *, headless: bool = True
 ):
     """持续保持在线，检查登录状态并自动重连。
 
     Args:
         username: 校园网用户名。
         password: 校园网密码。
-        check_interval_min: 检查间隔（分钟）。
+        check_interval_sec: 检查间隔（秒）。
         headless: 是否使用无头模式运行浏览器。
     """
     log = logger.bind(trigger="run")
-    check_interval_sec = check_interval_min * 60
 
-    log.info(f"保活服务已启动，检查间隔: {check_interval_min} 分钟")
+    log.info(f"保活服务已启动，检查间隔: {check_interval_sec} 秒")
     log.info(f"使用账户: {username}")
     log.info(f"日志文件: {LOG_FILE}")
 

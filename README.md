@@ -60,11 +60,17 @@ playwright install-deps chromium
 ### 1. 初始化配置
 
 ```bash
-buaalogin config
+buaalogin config set
 ```
 
-### 2. 启动保活服务
-后台常驻运行，默认每 5 分钟检查一次网络状态：
+### 2. 查看当前配置
+
+```bash
+buaalogin config show
+```
+
+### 3. 启动保活服务
+后台常驻运行，默认每 60 秒检查一次网络状态：
 
 ```bash
 buaalogin run
@@ -72,39 +78,71 @@ buaalogin run
 
 ## 使用示例
 
+### 配置与凭据管理
+```bash
+buaalogin config set                               # 交互式输入学号和密码
+buaalogin config set -u 学号 -p 密码              # 只保存账号和密码
+buaalogin config set -i 60                        # 只修改检测间隔为 60 秒
+buaalogin config set -u 学号 -p 密码 -i 120       # 一次性写入完整配置
+buaalogin config show                             # 查看当前已保存配置
+buaalogin info                                    # 查看配置文件和日志文件位置
+```
+
+### 使用环境变量
+```bash
+# PowerShell
+$env:BUAA_USERNAME="学号"
+$env:BUAA_PASSWORD="密码"
+$env:BUAA_CHECK_INTERVAL="60"
+buaalogin run
+```
+
+```bash
+# bash / zsh
+export BUAA_USERNAME="学号"
+export BUAA_PASSWORD="密码"
+export BUAA_CHECK_INTERVAL="60"
+buaalogin run
+```
+
 ### 单次登录
 ```bash
-buaalogin login                        # 使用已保存的配置
-buaalogin login -u 学号 -p 密码        # 使用指定凭据
-buaalogin login --headed               # 显示浏览器窗口
-buaalogin login -v                     # 显示详细日志
+buaalogin login                                   # 使用已保存的配置或环境变量
+buaalogin login -u 学号 -p 密码                   # 直接使用命令行参数登录
+buaalogin login --headed                          # 显示浏览器窗口，便于观察登录过程
+buaalogin -v login                                # 输出详细日志
+buaalogin -v login -u 学号 -p 密码 --headed       # 带详细日志的可视化登录
 ```
 
 ### 持续保活
 ```bash
-buaalogin run                          # 默认 5 分钟检测一次
-buaalogin run -i 1                     # 每 1 分钟检测一次
-buaalogin run --headed                 # 显示浏览器窗口
-buaalogin run --headless               # 无头模式（默认）
+buaalogin run                                     # 默认每 60 秒检测一次
+buaalogin run -i 30                               # 每 30 秒检测一次
+buaalogin run -u 学号 -p 密码 -i 120              # 不依赖配置文件，直接运行保活
+buaalogin run --headed                            # 显示浏览器窗口
+buaalogin run --headless                          # 无头模式（默认）
+buaalogin -v run -i 60                            # 输出详细日志，便于排查问题
 ```
 
-### 其他命令
-
-| 命令                  | 说明                                       |
-| --------------------- | ------------------------------------------ |
-| `buaalogin status`    | 检查当前网络状态（退出码: 0=在线, 1=离线） |
-| `buaalogin info`      | 显示配置文件路径和日志文件位置             |
-| `buaalogin config -s` | 查看当前已保存的配置信息                   |
-| `buaalogin --help`    | 查看所有可用命令和参数帮助                 |
+### 状态检查与帮助
+```bash
+buaalogin status                                  # 检查当前网络状态（退出码: 0=在线, 1=离线）
+buaalogin info                                    # 显示配置文件路径和日志文件位置
+buaalogin --help                                  # 查看所有命令
+buaalogin login --help                            # 查看 login 子命令帮助
+buaalogin run --help                              # 查看 run 子命令帮助
+buaalogin config --help                           # 查看 config 子命令帮助
+```
 
 ### 开机自启（仅 Windows）
 
 设置开机时自动运行保活服务：
 
 ```bash
-buaalogin startup enable   # 启用开机自启
-buaalogin startup disable  # 禁用开机自启
-buaalogin startup status   # 查看当前状态
+buaalogin config set -u 学号 -p 密码 -i 60   # 先保存保活所需配置
+buaalogin startup enable                     # 启用开机自启
+buaalogin startup status                     # 查看当前状态
+buaalogin startup disable                    # 禁用开机自启
 ```
 
 > **注意**：启用开机自启需要管理员权限。以管理员身份运行终端，然后执行上述命令。
@@ -151,4 +189,4 @@ buaalogin startup status   # 查看当前状态
 支持通过环境变量配置覆盖配置文件：
 - `BUAA_USERNAME`: 学号
 - `BUAA_PASSWORD`: 密码
-- `BUAA_CHECK_INTERVAL`: 检查间隔（分钟）
+- `BUAA_CHECK_INTERVAL`: 检查间隔（秒）
