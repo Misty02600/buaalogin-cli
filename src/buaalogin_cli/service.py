@@ -1,8 +1,10 @@
 """网络状态检测、登录、持续保活"""
 
+import subprocess
 import sys
 import time
 from enum import Enum, auto
+from pathlib import Path
 
 import requests
 from playwright.sync_api import TimeoutError as PlaywrightTimeout
@@ -71,6 +73,21 @@ def get_status() -> NetworkStatus:
 # region 登录
 
 
+def _install_browser() -> None:
+    """安装 Playwright Chromium 浏览器。"""
+    log = logger.bind(trigger="browser")
+    log.info("正在安装 Chromium 浏览器，首次运行需要下载...")
+    result = subprocess.run(
+        [sys.executable, "-m", "playwright", "install", "chromium"],
+        check=False,
+    )
+    if result.returncode != 0:
+        log.error("Chromium 浏览器安装失败")
+        msg = "Chromium 浏览器安装失败，请检查网络连接或手动运行: python -m playwright install chromium"
+        raise RuntimeError(msg)
+    log.info("Chromium 浏览器安装完成")
+
+
 def login(username: str, password: str, *, headless: bool = True) -> None:
     """使用 Playwright 模拟浏览器登录校园网。
 
@@ -95,6 +112,10 @@ def login(username: str, password: str, *, headless: bool = True) -> None:
     # 只有 LOGGED_OUT 时才启动浏览器
     with sync_playwright() as p:
         browser_path = p.chromium.executable_path
+
+        if not Path(browser_path).exists():
+            _install_browser()
+
         log.debug(f"使用浏览器: {browser_path}")
 
         browser = p.chromium.launch(headless=headless, executable_path=browser_path)
