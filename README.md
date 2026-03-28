@@ -18,22 +18,22 @@
 ### 方式一：使用 uv
 
 ```bash
-# 1. 安装工具
+# 安装或更新工具
 uv tool install buaalogin-cli
 ```
 
 ### 方式二：使用 pipx
 
 ```bash
-# 1. 安装工具
-pipx install buaalogin-cli
+# 安装或更新工具
+pipx upgrade --install buaalogin-cli
 ```
 
 ### 方式三：使用 pip
 
 ```bash
-# 1. 安装包
-pip install buaalogin-cli
+# 安装或更新工具
+pip install -U buaalogin-cli
 ```
 
 > 在首次运行 `buaalogin login` 或 `buaalogin run` 时自动检测并安装 Chromium。
