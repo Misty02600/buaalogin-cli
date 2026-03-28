@@ -64,8 +64,8 @@ def mock_playwright(tmp_path: Path):
         mock_pw.return_value.__enter__.return_value.chromium.launch.return_value = (
             mock_browser
         )
-        mock_pw.return_value.__enter__.return_value.chromium.executable_path = (
-            str(fake_browser)
+        mock_pw.return_value.__enter__.return_value.chromium.executable_path = str(
+            fake_browser
         )
         mock_browser.new_context.return_value = mock_context
         mock_context.new_page.return_value = mock_page

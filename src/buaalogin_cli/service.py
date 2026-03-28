@@ -89,10 +89,7 @@ def _install_browser() -> None:
     result = subprocess.run(install_cmd, check=False)
     if result.returncode != 0:
         install_command = subprocess.list2cmdline(install_cmd)
-        msg = (
-            "Chromium 浏览器安装失败，请检查网络连接，"
-            f"或手动运行: {install_command}"
-        )
+        msg = f"Chromium 浏览器安装失败，请检查网络连接，或手动运行: {install_command}"
         log.error(msg)
         raise RuntimeError(msg)
     log.info("Chromium 浏览器安装完成")
