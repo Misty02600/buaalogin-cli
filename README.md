@@ -18,21 +18,30 @@
 ### 方式一：使用 uv
 
 ```bash
-# 安装或更新工具
+# 安装工具
 uv tool install buaalogin-cli
+
+# 更新工具
+uv tool upgrade buaalogin-cli
 ```
 
 ### 方式二：使用 pipx
 
 ```bash
-# 安装或更新工具
+# 安装工具
+pipx install buaalogin-cli
+
+# 更新工具
 pipx upgrade --install buaalogin-cli
 ```
 
 ### 方式三：使用 pip
 
 ```bash
-# 安装或更新工具
+# 安装工具
+pip install buaalogin-cli
+
+# 更新工具
 pip install -U buaalogin-cli
 ```
 
