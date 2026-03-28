@@ -7,7 +7,7 @@
 
 
 一个简易的校园网自动登录与保活工具，基于 Playwright 模拟登录。
-- 开箱即用
+- 开箱即用，首次运行时会自动安装 Chromium 浏览器
 - 省去了复杂的加密逻辑，仅依赖于登录页前端元素
 - 并不轻量，需要安装较大的浏览器内核
 
@@ -20,12 +20,6 @@
 ```bash
 # 1. 安装工具
 uv tool install buaalogin-cli
-
-# 2. 安装浏览器内核
-uvx --from buaalogin-cli playwright install chromium
-
-# 3. (仅 Linux) 安装系统依赖
-uvx --from buaalogin-cli playwright install-deps chromium
 ```
 
 ### 方式二：使用 pipx
@@ -33,13 +27,6 @@ uvx --from buaalogin-cli playwright install-deps chromium
 ```bash
 # 1. 安装工具
 pipx install buaalogin-cli
-
-# 2. 安装浏览器内核
-# 使用 pipx 运行 playwright 命令下载浏览器（确保版本匹配）
-pipx run --spec buaalogin-cli playwright install chromium
-
-# 3. (仅 Linux) 安装系统依赖
-pipx run --spec buaalogin-cli playwright install-deps chromium
 ```
 
 ### 方式三：使用 pip
@@ -47,13 +34,10 @@ pipx run --spec buaalogin-cli playwright install-deps chromium
 ```bash
 # 1. 安装包
 pip install buaalogin-cli
-
-# 2. 安装浏览器内核
-playwright install chromium
-
-# 3. (仅 Linux) 安装系统依赖
-playwright install-deps chromium
 ```
+
+> 在首次运行 `buaalogin login` 或 `buaalogin run` 时自动检测并安装 Chromium。
+
 
 ## 快速上手
 

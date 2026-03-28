@@ -6,7 +6,6 @@ from typer.testing import CliRunner
 
 from buaalogin_cli import cli
 
-
 runner = CliRunner()
 
 

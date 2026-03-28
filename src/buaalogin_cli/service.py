@@ -1,8 +1,10 @@
 """网络状态检测、登录、持续保活"""
 
+import subprocess
 import sys
 import time
 from enum import Enum, auto
+from pathlib import Path
 
 import requests
 from playwright.sync_api import TimeoutError as PlaywrightTimeout
@@ -71,6 +73,31 @@ def get_status() -> NetworkStatus:
 # region 登录
 
 
+def _install_browser() -> None:
+    """安装 Playwright Chromium 浏览器及系统依赖。"""
+    log = logger.bind(trigger="browser")
+    install_cmd = [
+        sys.executable,
+        "-m",
+        "playwright",
+        "install",
+        "--with-deps",
+        "chromium",
+    ]
+
+    log.info("正在安装 Chromium 浏览器，首次运行需要下载...")
+    result = subprocess.run(install_cmd, check=False)
+    if result.returncode != 0:
+        install_command = subprocess.list2cmdline(install_cmd)
+        msg = (
+            "Chromium 浏览器安装失败，请检查网络连接，"
+            f"或手动运行: {install_command}"
+        )
+        log.error(msg)
+        raise RuntimeError(msg)
+    log.info("Chromium 浏览器安装完成")
+
+
 def login(username: str, password: str, *, headless: bool = True) -> None:
     """使用 Playwright 模拟浏览器登录校园网。
 
@@ -95,13 +122,18 @@ def login(username: str, password: str, *, headless: bool = True) -> None:
     # 只有 LOGGED_OUT 时才启动浏览器
     with sync_playwright() as p:
         browser_path = p.chromium.executable_path
-        log.debug(f"使用浏览器: {browser_path}")
-
-        browser = p.chromium.launch(headless=headless, executable_path=browser_path)
-        context = browser.new_context()
-        page = context.new_page()
+        browser = None
 
         try:
+            if not Path(browser_path).exists():
+                _install_browser()
+
+            log.debug(f"使用浏览器: {browser_path}")
+
+            browser = p.chromium.launch(headless=headless, executable_path=browser_path)
+            context = browser.new_context()
+            page = context.new_page()
+
             log.info("正在打开登录页面...")
             page.goto(LOGIN_URL, timeout=30000)
             page.wait_for_load_state("networkidle", timeout=10000)
@@ -135,9 +167,10 @@ def login(username: str, password: str, *, headless: bool = True) -> None:
             log.error(f"登录过程出错：{e}")
             raise LoginError(f"{e}") from e
         finally:
-            log.debug("正在关闭浏览器...")
-            browser.close()
-            log.debug("浏览器已关闭")
+            if browser is not None:
+                log.debug("正在关闭浏览器...")
+                browser.close()
+                log.debug("浏览器已关闭")
 
 
 def _get_error_message(page) -> str:

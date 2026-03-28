@@ -95,7 +95,7 @@ class TestLoginFlow:
         mock_playwright[
             "playwright"
         ].return_value.__enter__.return_value.chromium.launch.assert_called_with(
-            headless=True, executable_path="/mock/chromium"
+            headless=True, executable_path=mock_playwright["browser_path"]
         )
 
     @patch("buaalogin_cli.service.get_status")
@@ -117,7 +117,7 @@ class TestLoginFlow:
         mock_playwright[
             "playwright"
         ].return_value.__enter__.return_value.chromium.launch.assert_called_with(
-            headless=False, executable_path="/mock/chromium"
+            headless=False, executable_path=mock_playwright["browser_path"]
         )
 
     @patch("buaalogin_cli.service.get_status")

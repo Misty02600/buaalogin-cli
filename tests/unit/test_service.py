@@ -1,5 +1,6 @@
 """service 模块单元测试"""
 
+import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -9,6 +10,7 @@ from buaalogin_cli.service import (
     LoginError,
     NetworkStatus,
     _get_error_message,
+    _install_browser,
     get_status,
 )
 
@@ -79,6 +81,128 @@ class TestLogin:
         with pytest.raises(LoginError) as exc_info:
             login("user", "pass")
         assert "未检测到校园网环境" in str(exc_info.value)
+
+
+class TestInstallBrowser:
+    """测试浏览器安装逻辑"""
+
+    @patch("buaalogin_cli.service.subprocess.run")
+    def test_install_browser_success(self, mock_run):
+        """测试浏览器安装成功"""
+        mock_run.return_value = MagicMock(returncode=0)
+
+        _install_browser()
+
+        mock_run.assert_called_once_with(
+            [
+                sys.executable,
+                "-m",
+                "playwright",
+                "install",
+                "--with-deps",
+                "chromium",
+            ],
+            check=False,
+        )
+
+    @patch("buaalogin_cli.service.subprocess.run")
+    def test_install_browser_failure(self, mock_run):
+        """测试浏览器安装失败时抛出 RuntimeError"""
+        mock_run.return_value = MagicMock(returncode=1)
+
+        with pytest.raises(RuntimeError, match="Chromium 浏览器安装失败") as exc_info:
+            _install_browser()
+
+        assert "playwright install --with-deps chromium" in str(exc_info.value)
+
+
+class TestBrowserAutoInstall:
+    """测试浏览器自动安装"""
+
+    @patch("buaalogin_cli.service.get_status")
+    @patch("buaalogin_cli.service._install_browser")
+    def test_login_installs_browser_when_missing(self, mock_install, mock_get_status):
+        """测试浏览器不存在时自动安装"""
+        from buaalogin_cli.service import login
+
+        mock_get_status.return_value = NetworkStatus.LOGGED_OUT
+
+        with patch("buaalogin_cli.service.sync_playwright") as mock_pw:
+            mock_browser = MagicMock()
+            mock_context = MagicMock()
+            mock_page = MagicMock()
+
+            mock_pw.return_value.__enter__.return_value.chromium.executable_path = (
+                "/nonexistent/chromium"
+            )
+            mock_pw.return_value.__enter__.return_value.chromium.launch.return_value = (
+                mock_browser
+            )
+            mock_browser.new_context.return_value = mock_context
+            mock_context.new_page.return_value = mock_page
+            type(mock_page).url = property(
+                lambda self: "https://gw.buaa.edu.cn/success"
+            )
+
+            login("user", "pass")
+
+        mock_install.assert_called_once()
+
+    @patch("buaalogin_cli.service.get_status")
+    @patch("buaalogin_cli.service._install_browser")
+    def test_login_skips_install_when_browser_exists(
+        self, mock_install, mock_get_status, tmp_path
+    ):
+        """测试浏览器已存在时跳过安装"""
+        from buaalogin_cli.service import login
+
+        mock_get_status.return_value = NetworkStatus.LOGGED_OUT
+        fake_browser = tmp_path / "chromium"
+        fake_browser.write_text("")
+
+        with patch("buaalogin_cli.service.sync_playwright") as mock_pw:
+            mock_browser = MagicMock()
+            mock_context = MagicMock()
+            mock_page = MagicMock()
+
+            mock_pw.return_value.__enter__.return_value.chromium.executable_path = str(
+                fake_browser
+            )
+            mock_pw.return_value.__enter__.return_value.chromium.launch.return_value = (
+                mock_browser
+            )
+            mock_browser.new_context.return_value = mock_context
+            mock_context.new_page.return_value = mock_page
+            type(mock_page).url = property(
+                lambda self: "https://gw.buaa.edu.cn/success"
+            )
+
+            login("user", "pass")
+
+        mock_install.assert_not_called()
+
+    @patch("buaalogin_cli.service.get_status")
+    @patch(
+        "buaalogin_cli.service._install_browser",
+        side_effect=RuntimeError("install failed"),
+    )
+    def test_login_wraps_install_failure_as_login_error(
+        self, mock_install, mock_get_status
+    ):
+        """测试自动安装失败时转换为 LoginError"""
+        from buaalogin_cli.service import login
+
+        mock_get_status.return_value = NetworkStatus.LOGGED_OUT
+
+        with patch("buaalogin_cli.service.sync_playwright") as mock_pw:
+            chromium = mock_pw.return_value.__enter__.return_value.chromium
+            chromium.executable_path = "/nonexistent/chromium"
+
+            with pytest.raises(LoginError, match="install failed"):
+                login("user", "pass")
+
+        chromium.launch.assert_not_called()
+        mock_install.assert_called_once()
 
 
 class TestGetErrorMessage:

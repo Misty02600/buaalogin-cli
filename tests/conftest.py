@@ -50,8 +50,11 @@ def mock_response_logged_out(mock_urlopen):
 
 
 @pytest.fixture
-def mock_playwright():
+def mock_playwright(tmp_path: Path):
     """Mock Playwright 浏览器。"""
+    fake_browser = tmp_path / "chromium"
+    fake_browser.write_text("")
+
     with patch("buaalogin_cli.service.sync_playwright") as mock_pw:
         # 设置 mock 链
         mock_browser = MagicMock()
@@ -62,7 +65,7 @@ def mock_playwright():
             mock_browser
         )
         mock_pw.return_value.__enter__.return_value.chromium.executable_path = (
-            "/mock/chromium"
+            str(fake_browser)
         )
         mock_browser.new_context.return_value = mock_context
         mock_context.new_page.return_value = mock_page
@@ -70,6 +73,7 @@ def mock_playwright():
         yield {
             "playwright": mock_pw,
             "browser": mock_browser,
+            "browser_path": str(fake_browser),
             "context": mock_context,
             "page": mock_page,
         }
