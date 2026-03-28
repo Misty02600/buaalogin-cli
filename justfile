@@ -12,7 +12,7 @@ test:
 bump:
     uv run cz bump
     uv lock
-    git push origin HEAD --follow-tags
+    git push origin HEAD --tags
 
 # 生成 changelog
 changelog:
