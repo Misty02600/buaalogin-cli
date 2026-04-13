@@ -16,9 +16,7 @@ def get_exe_path() -> Path:
     """获取可执行文件的绝对路径。"""
     exe_path = shutil.which(CLI_CMD)
     if not exe_path:
-        raise FileNotFoundError(
-            f"未找到 {CLI_CMD}，请确保已安装并在 PATH 中"
-        )
+        raise FileNotFoundError(f"未找到 {CLI_CMD}，请确保已安装并在 PATH 中")
     return Path(exe_path)
 
 

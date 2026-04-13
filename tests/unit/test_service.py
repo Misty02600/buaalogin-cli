@@ -86,9 +86,7 @@ class TestLogin:
         assert "未检测到校园网环境" in str(exc_info.value)
 
     @patch("buaalogin_cli.service.get_status")
-    def test_login_uses_fallback_selectors_for_inputs_and_button(
-        self, mock_get_status
-    ):
+    def test_login_uses_fallback_selectors_for_inputs_and_button(self, mock_get_status):
         """测试登录时使用候选选择器填写输入框并点击按钮。"""
         from buaalogin_cli.service import login
 
