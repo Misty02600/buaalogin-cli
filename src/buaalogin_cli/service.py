@@ -13,6 +13,17 @@ from playwright.sync_api import sync_playwright
 from .constants import LOG_FILE, LOGIN_URL, RAD_USER_INFO_URL
 from .log import logger
 
+USERNAME_SELECTOR = (
+    "#username:visible, input[name='username']:visible, input[type='text']:visible"
+)
+PASSWORD_SELECTOR = (
+    "#password:visible, input[name='password']:visible, input[type='password']:visible"
+)
+LOGIN_BUTTON_SELECTOR = (
+    '#login-account:visible, #login:visible, button:has-text("登录"):visible, '
+    'button:has-text("Login"):visible'
+)
+
 
 class LoginError(Exception):
     """登录失败异常。"""
@@ -137,12 +148,12 @@ def login(username: str, password: str, *, headless: bool = True) -> None:
 
             # 填写用户名和密码
             log.debug("正在填写登录信息...")
-            page.locator("#username:visible").fill(username)
-            page.locator("#password:visible").fill(password)
+            page.locator(USERNAME_SELECTOR).first.fill(username)
+            page.locator(PASSWORD_SELECTOR).first.fill(password)
 
             # 点击登录按钮
             log.info("正在提交登录...")
-            page.locator("#login").click()
+            page.locator(LOGIN_BUTTON_SELECTOR).first.click()
 
             page.wait_for_timeout(3000)
 

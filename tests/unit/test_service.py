@@ -7,6 +7,9 @@ import pytest
 import requests
 
 from buaalogin_cli.service import (
+    LOGIN_BUTTON_SELECTOR,
+    PASSWORD_SELECTOR,
+    USERNAME_SELECTOR,
     LoginError,
     NetworkStatus,
     _get_error_message,
@@ -81,6 +84,54 @@ class TestLogin:
         with pytest.raises(LoginError) as exc_info:
             login("user", "pass")
         assert "未检测到校园网环境" in str(exc_info.value)
+
+    @patch("buaalogin_cli.service.get_status")
+    def test_login_uses_fallback_selectors_for_inputs_and_button(
+        self, mock_get_status
+    ):
+        """测试登录时使用候选选择器填写输入框并点击按钮。"""
+        from buaalogin_cli.service import login
+
+        mock_get_status.return_value = NetworkStatus.LOGGED_OUT
+
+        with patch("buaalogin_cli.service.sync_playwright") as mock_pw:
+            mock_browser = MagicMock()
+            mock_context = MagicMock()
+            mock_page = MagicMock()
+
+            mock_pw.return_value.__enter__.return_value.chromium.executable_path = (
+                "C:/fake/chromium"
+            )
+            mock_pw.return_value.__enter__.return_value.chromium.launch.return_value = (
+                mock_browser
+            )
+            mock_browser.new_context.return_value = mock_context
+            mock_context.new_page.return_value = mock_page
+            type(mock_page).url = property(
+                lambda self: "https://gw.buaa.edu.cn/success"
+            )
+
+            username_locator = MagicMock()
+            password_locator = MagicMock()
+            button_locator = MagicMock()
+            username_locator.first = username_locator
+            password_locator.first = password_locator
+            button_locator.first = button_locator
+
+            mock_page.locator.side_effect = [
+                username_locator,
+                password_locator,
+                button_locator,
+            ]
+
+            login("user", "pass")
+
+        assert mock_page.locator.call_args_list[0].args[0] == USERNAME_SELECTOR
+        assert mock_page.locator.call_args_list[1].args[0] == PASSWORD_SELECTOR
+        assert mock_page.locator.call_args_list[2].args[0] == LOGIN_BUTTON_SELECTOR
+        username_locator.fill.assert_called_once_with("user")
+        password_locator.fill.assert_called_once_with("pass")
+        button_locator.click.assert_called_once_with()
 
 
 class TestInstallBrowser:
