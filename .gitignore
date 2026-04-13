@@ -229,6 +229,8 @@ __marimo__/
 
 # local
 .sandbox/
+artifacts/
 
 # ai
 .github/instructions/
+memory-bank/
