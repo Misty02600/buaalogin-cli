@@ -31,6 +31,7 @@ class TestEnableStartup:
     def test_enable_startup_creates_task_from_xml(self, monkeypatch):
         """应通过 schtasks /xml 创建任务。"""
         command_calls = []
+        task_xml_bytes = []
         temp_path = Path(".sandbox/test-startup-success.xml")
 
         monkeypatch.setattr(
@@ -45,7 +46,11 @@ class TestEnableStartup:
         monkeypatch.setattr(
             startup.subprocess,
             "run",
-            lambda cmd, **_: command_calls.append(cmd) or Mock(returncode=0),
+            lambda cmd, **_: (
+                command_calls.append(cmd)
+                or task_xml_bytes.append(Path(cmd[5]).read_bytes())
+                or Mock(returncode=0)
+            ),
         )
         monkeypatch.setitem(os.environ, "USERNAME", "test_user")
 
@@ -67,6 +72,10 @@ class TestEnableStartup:
             "secret",
             "/f",
         ]
+        assert task_xml_bytes[0].startswith((b"\xff\xfe", b"\xfe\xff"))
+        assert '<?xml version="1.0" encoding="UTF-16"?>' in task_xml_bytes[0].decode(
+            "utf-16"
+        )
         assert not temp_path.exists()
 
     def test_enable_startup_raises_when_schtasks_fails(self, monkeypatch):
@@ -99,14 +108,15 @@ def _named_temp_file_factory(temp_path: Path):
     """构造一个可预测的 NamedTemporaryFile 替身。"""
 
     class _TempFile:
-        def __init__(self):
+        def __init__(self, encoding: str):
             self.name = str(temp_path)
             self._path = temp_path
+            self._encoding = encoding
             self._handle = None
 
         def __enter__(self):
             self._path.parent.mkdir(parents=True, exist_ok=True)
-            self._handle = self._path.open("w", encoding="utf-8")
+            self._handle = self._path.open("w", encoding=self._encoding)
             return self
 
         def write(self, content: str) -> int:
@@ -117,4 +127,4 @@ def _named_temp_file_factory(temp_path: Path):
             if self._handle is not None:
                 self._handle.close()
 
-    return lambda **kwargs: _TempFile()
+    return lambda **kwargs: _TempFile(kwargs["encoding"])

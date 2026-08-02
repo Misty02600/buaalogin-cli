@@ -36,7 +36,7 @@ def build_task_xml(exe_path: Path, username: str) -> str:
     escaped_exe = escape(str(exe_path))
     escaped_user = escape(username)
 
-    return f"""<?xml version="1.0" encoding="UTF-8"?>
+    return f"""<?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
     <Author>{escaped_user}</Author>
@@ -93,7 +93,7 @@ def enable_startup() -> None:
 
     with tempfile.NamedTemporaryFile(
         mode="w",
-        encoding="utf-8",
+        encoding="utf-16",
         suffix=".xml",
         delete=False,
     ) as temp_file:
